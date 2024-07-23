@@ -51,6 +51,8 @@ static short mb;
 static short mc;
 static short md;
 
+static bool calibrationDataRead = false;
+
 static struct BMP180_Platform platform = { 0 };
 
 static bool readCalibReg(uint8_t regMsb, uint8_t regLsb, short *valueShort, unsigned short *valueUShort) {
@@ -211,6 +213,10 @@ bool BMP180_ReadCalibrationData(void) {
     ok &= readCalibReg(CALIB_MC_REG_MSB, CALIB_MC_REG_LSB, NULL, &mc);
     ok &= readCalibReg(CALIB_MD_REG_MSB, CALIB_MD_REG_LSB, NULL, &md);
 
+    if (ok) {
+        calibrationDataRead = true;
+    }
+
     return ok;
 }
 
@@ -242,6 +248,12 @@ bool BMP180_CheckChipId(void) {
 bool BMP180_ReadTemperaturePressure(enum BMP180_OversamplingSetting pressureOss, float *temp, float *pressure) {
     uint8_t ctrlMeas[1];
     int ret;
+
+    // Check if calibration data has been read
+    if (!calibrationDataRead) {
+        platform.debugPrint("BMP180 calibration data not read\r\n");
+        return false;
+    }
 
     // Start of conversion for temperature
     uint8_t sco = 1;
