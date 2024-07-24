@@ -207,11 +207,11 @@ bool BMP180_ReadCalibrationData(void) {
     ok &= readCalibReg(CALIB_AC4_REG_MSB, CALIB_AC4_REG_LSB, NULL, &ac4);
     ok &= readCalibReg(CALIB_AC5_REG_MSB, CALIB_AC5_REG_LSB, NULL, &ac5);
     ok &= readCalibReg(CALIB_AC6_REG_MSB, CALIB_AC6_REG_LSB, NULL, &ac6);
-    ok &= readCalibReg(CALIB_B1_REG_MSB, CALIB_B1_REG_LSB, NULL, &b1);
-    ok &= readCalibReg(CALIB_B2_REG_MSB, CALIB_B2_REG_LSB, NULL, &b2);
-    ok &= readCalibReg(CALIB_MB_REG_MSB, CALIB_MB_REG_LSB, NULL, &mb);
-    ok &= readCalibReg(CALIB_MC_REG_MSB, CALIB_MC_REG_LSB, NULL, &mc);
-    ok &= readCalibReg(CALIB_MD_REG_MSB, CALIB_MD_REG_LSB, NULL, &md);
+    ok &= readCalibReg(CALIB_B1_REG_MSB, CALIB_B1_REG_LSB, &b1, NULL);
+    ok &= readCalibReg(CALIB_B2_REG_MSB, CALIB_B2_REG_LSB, &b2, NULL);
+    ok &= readCalibReg(CALIB_MB_REG_MSB, CALIB_MB_REG_LSB, &mb, NULL);
+    ok &= readCalibReg(CALIB_MC_REG_MSB, CALIB_MC_REG_LSB, &mc, NULL);
+    ok &= readCalibReg(CALIB_MD_REG_MSB, CALIB_MD_REG_LSB, &md, NULL);
 
     if (ok) {
         calibrationDataRead = true;
@@ -256,7 +256,6 @@ bool BMP180_ReadTemperaturePressure(enum BMP180_OversamplingSetting pressureOss,
     }
 
     // Start of conversion for temperature
-    uint8_t sco = 1;
     ctrlMeas[0] = MEAS_CTRL_SCO_TEMP; // sco=1 -> start of conversion
     ret = platform.i2cWriteReg(BMP180_I2C_ADDR, CTRL_MEAS_REG, ctrlMeas, sizeof(ctrlMeas), 1);
     if (ret < 0) {
