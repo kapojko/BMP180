@@ -3,6 +3,8 @@
 #include "MinUnit.h"
 #include "BMP180.h"
 
+#define I2C_READ_TIMEOUT_MS 5
+
 #define OUT_XLSB_REG 0xF8
 #define OUT_LSB_REG 0xF7
 #define OUT_MSB_REG 0xF6
@@ -91,7 +93,7 @@ static bool readUncompensatedTemp(long *ut) {
 
     // Read MSB
     uint8_t msb[1];
-    ret = platform.i2cReadReg(BMP180_I2C_ADDR, OUT_MSB_REG, msb, sizeof(msb), 1);
+    ret = platform.i2cReadReg(BMP180_I2C_ADDR, OUT_MSB_REG, msb, sizeof(msb), I2C_READ_TIMEOUT_MS);
     if (ret < 0) {
         platform.debugPrint("Error reading BMP180 uncompensated temperature MSB: %d\r\n", -ret);
         return false;
@@ -99,7 +101,7 @@ static bool readUncompensatedTemp(long *ut) {
 
     // Read LSB
     uint8_t lsb[1];
-    ret = platform.i2cReadReg(BMP180_I2C_ADDR, OUT_LSB_REG, lsb, sizeof(lsb), 1);
+    ret = platform.i2cReadReg(BMP180_I2C_ADDR, OUT_LSB_REG, lsb, sizeof(lsb), I2C_READ_TIMEOUT_MS);
     if (ret < 0) {
         platform.debugPrint("Error reading BMP180 uncompensated temperature LSB: %d\r\n", -ret);
         return false;
@@ -115,7 +117,7 @@ static bool readUncompensatedPressure(long *up, int oss) {
 
     // Read MSB
     uint8_t msb[1];
-    ret = platform.i2cReadReg(BMP180_I2C_ADDR, OUT_MSB_REG, msb, sizeof(msb), 1);
+    ret = platform.i2cReadReg(BMP180_I2C_ADDR, OUT_MSB_REG, msb, sizeof(msb), I2C_READ_TIMEOUT_MS);
     if (ret < 0) {
         platform.debugPrint("Error reading BMP180 uncompensated pressure MSB: %d\r\n", -ret);
         return false;
@@ -123,7 +125,7 @@ static bool readUncompensatedPressure(long *up, int oss) {
 
     // Read LSB
     uint8_t lsb[1];
-    ret = platform.i2cReadReg(BMP180_I2C_ADDR, OUT_LSB_REG, lsb, sizeof(lsb), 1);
+    ret = platform.i2cReadReg(BMP180_I2C_ADDR, OUT_LSB_REG, lsb, sizeof(lsb), I2C_READ_TIMEOUT_MS);
     if (ret < 0) {
         platform.debugPrint("Error reading BMP180 uncompensated pressure LSB: %d\r\n", -ret);
         return false;
@@ -131,7 +133,7 @@ static bool readUncompensatedPressure(long *up, int oss) {
 
     // Read XLSB
     uint8_t xlsb[1];
-    ret = platform.i2cReadReg(BMP180_I2C_ADDR, OUT_XLSB_REG, xlsb, sizeof(xlsb), 1);
+    ret = platform.i2cReadReg(BMP180_I2C_ADDR, OUT_XLSB_REG, xlsb, sizeof(xlsb), I2C_READ_TIMEOUT_MS);
     if (ret < 0) {
         platform.debugPrint("Error reading BMP180 uncompensated pressure XLSB: %d\r\n", -ret);
         return false;
@@ -215,6 +217,9 @@ bool BMP180_ReadCalibrationData(void) {
 
     if (ok) {
         calibrationDataRead = true;
+        platform.debugPrint("BMP180 calibration data read\r\n");
+    } else {
+        platform.debugPrint("BMP180 calibration data read failed\r\n");
     }
 
     return ok;
@@ -241,6 +246,8 @@ bool BMP180_CheckChipId(void) {
         platform.debugPrint("Invalid BMP180 chip ID: %02X, expected: %02X\r\n", chipId, BMP180_CHIP_ID);
         return false;
     }
+
+    platform.debugPrint("BMP180 chip ID is valid: %02X\r\n", chipId);
 
     return true;
 }
