@@ -9,6 +9,16 @@ set(BMP180_SOURCES
     BMP180.c)
 add_executable(BMP180_Test ${BMP180_SOURCES} BMP180_Test.c)
 
+# Platform-specific handling for linking against the math library
+if (WIN32)
+    # Windows: No need to link against "m" library
+    # You can safely remove this line
+    # target_link_libraries(BMP180_Test m)
+else ()
+    # Linux: Link against the math library ("-lm")
+    target_link_libraries(BMP180_Test m)
+endif ()
+
 # Setup testing
 enable_testing()
 include(CTest)
